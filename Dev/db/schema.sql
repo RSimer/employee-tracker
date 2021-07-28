@@ -1,37 +1,32 @@
-DROP DATABASE IF EXISTS department_db;
-DROP DATABASE IF EXISTS roles_db;
-DROP DATABASE IF EXISTS employees_db;
+
+DROP DATABASE IF EXISTS project_db;
+CREATE DATABASE project_db;
+
+USE project_db;
 
 -- department
-CREATE DATABASE department_db;
 
-USE department_db;
 
-CREATE department (
+CREATE TABLE department (
     id       INT     AUTO INCREMENT      NOT NUll,
-    name             VARCHAR(30)         NOT NUll,
+    names             VARCHAR(30)         NOT NUll,
     PRIMARY KEY      (id)
 );
 
--- role database
-CREATE DATABASE roles_db;
+-- role table
 
-USE roles_db;
 
-CREATE roles (
+CREATE TABLE roles (
      id               INT     AUTO INCREMENT      NOT NUll,
      title                    VARCHAR(30)         NOT NUll,
-     salry                    DECIMAL             NOT NULL,
+     salary                    DECIMAL             NOT NULL,
      department_id    INT                         NOT NULL,
 
 );
 
--- employees database
-CREATE DATABASE employees_db;
+-- employees table
 
-USE employees_db;
-
-CREATE employees (
+CREATE TABLE employees (
      id               INT     AUTO INCREMENT      NOT NUll,
      first_name               VARCHAR(30)         NOT NUll,
      last_name                VARCHAR(30)         NOT NULL,
