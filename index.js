@@ -1,14 +1,14 @@
-const { listenerCount } = require("events");
-const connenction = require('./db/connections')
+const connenction = require('./db/connections');
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const sql = require('mysql2');
+const mysql = require('mysql2');
 
 
-firstQuestion(() => {
+
+ const firstQuestion = () => {
 
 
-inquirer.prompt([
+    inquirer.prompt([
 
     {
         type:'list' ,
@@ -23,42 +23,52 @@ inquirer.prompt([
                 'Add Role',
                 'View All Departments',
                 'Add Department',
-            ],
+            ]
     }
 
 ])
 // going into different functions
-.then((data) =>{
-    if(data.startingQuestion === 'View All Employees'){
-        return ViewAllEmployees();
-    }else if(data.startingQuestion === 'Add Employee'){
-        return AddEmployees();
-    }else if(data.startingQuestion === 'Update Employee Role'){
-        return UpdateEmployeeRole();
-    }else if(data.startingQuestion === 'View All Roles'){
-        return ViewAllRoles();
-    }else if(data.startingQuestion === 'Add Role'){
-        return AddRole();
-    }else if(data.startingQuestion === 'View All Departments'){
-        return ViewAllDepartments();
-    }else if(data.startingQuestion === 'Add Department'){
-        return AddDepartment();
-    }
-});
+// .then does not work with mysql12 so change that
+    connenction.query(data => {
+        switch(data){
+        case (data.startingQuestion === 'View All Employees'):
+             viewAllEmployees();
+             break;
+        case(data.startingQuestion === 'Add Employee'):
+             addEmployees();
+             break;
+        case(data.startingQuestion === 'Update Employee Role'):
+             updateEmployeeRole();
+             break;
+        case(data.startingQuestion === 'View All Roles'):
+             viewAllRoles();
+             break;
+        case(data.startingQuestion === 'Add Role'):
+             addRole();
+             break;
+        case(data.startingQuestion === 'View All Departments'):
+            viewAllDepartments();
+            break;
+        case(data.startingQuestion === 'Add Department'):
+            addDepartment();
+            break;
+        }
+    })
 
-});
+};
 
-const ViewAllEmployees = () =>{
+const viewAllEmployees = () =>{
 
     const sql = `SELECT employee.id,employee.first_name,employee.last_name,role.title,department.name AS department,role.salary,CONCAT(manager.first_name,manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;`
-    connenction.promise().query(sql)
+    // change connection.promise
+    connenction.query(sql)
     .then(([rows])=>{
         cTable(rows)
     }).then(()=> firstQuestion());
     
 };
 
-const AddEmployees = () =>{
+const addEmployees = () =>{
     inquirer.prompt([
         {
             type:'input',
@@ -73,7 +83,7 @@ const AddEmployees = () =>{
         }
     ])
     const sql = `INSERT INTO employee SET?`
-    connenction.promise().query(sql)
+    connenction.query(sql)
     .then(([rows])=>{
         cTable(rows)
     }).then(()=> firstQuestion());
@@ -81,4 +91,3 @@ const AddEmployees = () =>{
 };
 
 firstQuestion();
-
