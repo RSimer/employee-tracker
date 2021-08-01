@@ -1,7 +1,7 @@
-const connenction = require('./db/connections');
+const db = require('./db/connections');
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 
 
 
@@ -13,7 +13,7 @@ const mysql = require('mysql2');
     {
         type:'list' ,
         message:'What do you want to do? (use arrow keys)',
-        name: 'startingQuesiton',
+        name: 'starting',
         choices:
             [
                 'View All Employees',
@@ -28,30 +28,29 @@ const mysql = require('mysql2');
 
 ])
 // going into different functions
-// .then does not work with mysql12 so change that
-    connenction.query(data => {
-        switch(data){
-        case (data.startingQuestion === 'View All Employees'):
-             viewAllEmployees();
-             break;
-        case(data.startingQuestion === 'Add Employee'):
-             addEmployees();
-             break;
-        case(data.startingQuestion === 'Update Employee Role'):
-             updateEmployeeRole();
-             break;
-        case(data.startingQuestion === 'View All Roles'):
-             viewAllRoles();
-             break;
-        case(data.startingQuestion === 'Add Role'):
-             addRole();
-             break;
-        case(data.startingQuestion === 'View All Departments'):
-            viewAllDepartments();
-            break;
-        case(data.startingQuestion === 'Add Department'):
-            addDepartment();
-            break;
+    .then(data => {
+        
+        if (data.starting === 'View All Employees'){
+             viewAllEmployees()
+        }
+        else if (data.starting === 'Add Employee'){
+             addEmployees()
+        }
+        else if(data.starting === 'Update Employee Role'){
+             updateEmployeeRole()
+        }
+        else if(data.starting === 'View All Roles'){
+             viewAllRoles()
+        }
+        else if(data.starting === 'Add Role'){
+             addRole()
+        }
+        else if(data.starting === 'View All Departments'){
+            viewAllDepartments()
+        }
+        else if(data.starting === 'Add Department'){
+            addDepartment()
+        
         }
     })
 
@@ -59,12 +58,12 @@ const mysql = require('mysql2');
 
 const viewAllEmployees = () =>{
 
-    const sql = `SELECT employee.id,employee.first_name,employee.last_name,role.title,department.name AS department,role.salary,CONCAT(manager.first_name,manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;`
-    // change connection.promise
-    connenction.query(sql)
-    .then(([rows])=>{
-        cTable(rows)
-    }).then(()=> firstQuestion());
+    const sql = `SELECT employees.id,employees.first_name,employees.last_name,roles.title,department.names AS department,roles.salary,CONCAT(manager.first_name,manager.last_name) AS manager FROM employees LEFT JOIN roles on employees.role_id = roles.id LEFT JOIN department on roles.department_id = department.id LEFT JOIN employees manager on manager.id = employees.manager_id;`
+
+    db.promise().query(sql)
+        .then(([rows])=>{
+            console.table(rows)
+            }).then(()=> firstQuestion());
     
 };
 
@@ -73,20 +72,21 @@ const addEmployees = () =>{
         {
             type:'input',
             message:'What is the employee`s first name?',
-            name:'first_name'
+            name:'first_name',
             
         },
         {
             type:'input',
             message:'What is the the employee`s last name',
-            name:'last_name'
-        }
+            name:'last_name',
+        },
     ])
-    const sql = `INSERT INTO employee SET?`
-    connenction.query(sql)
-    .then(([rows])=>{
-        cTable(rows)
-    }).then(()=> firstQuestion());
+    const sql = `INSERT INTO employees SET`;
+
+    db.promise().query(sql)
+        .then(([rows])=>{
+             console.table(rows)
+                 }).then(()=> firstQuestion());
 
 };
 
