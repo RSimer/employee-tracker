@@ -71,6 +71,17 @@ const viewAllEmployees = () =>{
 };
 
 const addEmployees = () =>{
+    const sql = `SELECT roles.id, roles.title FROM roles`;
+    const sql2 = `SELECT employees.id, employees.first_name, employees.last_name FROM employees`;
+    db.promise().query(sql)
+        .then(([rows]) => {
+            // saves off the role information into an array
+            const roleArr = rows.map(row => ({ name: row.title, value: row.id }));
+            db.promise().query(sql2)
+                .then(([rows]) => {
+                    // // saves off the manager information into an array
+                    const managerArr = rows.map(row => ({ name: row.first_name + " " + row.last_name, value: row.id }))
+
     inquirer.prompt([
         {
             type:'input',
@@ -83,23 +94,49 @@ const addEmployees = () =>{
             message:'What is the employee`s last name',
             name:'last_name',
         },
+        {
+            type: 'list',
+            name: 'manager_id',
+            message: 'Pick the manager',
+            choices: [...managerArr, { name: "NONE", value: null }]
+        },
+        {
+            type: 'list',
+            name: 'role_id',
+            message: 'Pick the role',
+            choices: [...roleArr, { name: "NONE", value: null }]
+        },
+        
        
     ])
-   const sql = `INSERT INTO employees(first_name,last_name)`; 
 
-    db.promise().query(sql)
+
+
+    
+   const insert = `INSERT INTO employees SET`; 
+
+    db.promise().query(insert)
         .then(([rows])=>{
              console.table(rows)
                  }).then(()=> firstQuestion());
 
-};
+})})};
 
 
 // roles section
 const updateEmployeeRole = () =>{
+    inquirer.prompt([
+        {
+            type: 'list',
+            message:'which employee would you like to update?',
+            name: '',
+            choices:[
+                employees
+            ]
+        }
+    ])
 
-
-
+    const sql = `UPDATE`
 
     db.promise().query(sql)
     .then(([rows])=>{
@@ -116,6 +153,25 @@ const viewAllRoles = () =>{
             console.table(rows)
             }).then(()=> firstQuestion());
     
+};
+
+const addRole = () =>{
+    inquirer.prompt([
+        {
+            type:'input',
+            message:'What is the name of the role?',
+            name:'title',
+            
+        },
+        
+    ])
+   const sql = `INSERT INTO roles(title) VALUES() SET;`; 
+
+    db.promise().query(sql)
+        .then(([rows])=>{
+             console.table(rows)
+                 }).then(()=> firstQuestion());
+
 };
 
 // departments section
@@ -140,7 +196,7 @@ const addDepartment = () =>{
         },
         
     ])
-   const sql = `INSERT INTO department(names)`; 
+   const sql = `INSERT INTO department(names) VALUES() SET`; 
 
     db.promise().query(sql)
         .then(([rows])=>{
