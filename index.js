@@ -1,7 +1,10 @@
 const db = require('./db/connections');
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const mysql = require('mysql2/promise');
+const mysql = require('mysql2');
+const util = require('util');
+
+const query = util.promisify(db.query);
 
 
 
@@ -58,15 +61,18 @@ const mysql = require('mysql2/promise');
 
 const viewAllEmployees = () =>{
 
-    const sql = `SELECT employees.id,employees.first_name,employees.last_name,roles.title,department.names AS department,
-     roles.salary,CONCAT(manager.first_name,manager.last_name) AS manager FROM employees
-     LEFT JOIN roles on employees.role_id = roles.id LEFT JOIN department on roles.department_id = department.id
-      LEFT JOIN employees manager on manager.id = employees.manager_id;`
+
+
+    const sql = `SELECT employees.id, employees.first_name, employees.last_name, roles.title, department.names AS department, roles.salary, CONCAT(manager.first_name,manager.last_name)AS manager FROM employees LEFT JOIN roles on employees.role_id = roles.id LEFT JOIN department on roles.department_id = department.id LEFT JOIN employees manager on manager.id = employees.manager_id;`
+
 
     db.promise().query(sql)
         .then(([rows])=>{
             console.table(rows)
-            }).then(()=> firstQuestion());
+            })
+            .catch(console.table)
+            .then(()=> firstQuestion())
+
     
 };
 
@@ -110,38 +116,63 @@ const addEmployees = () =>{
        
     ])
 
+    .then(result => {
+        db.promise().query(
+            "INSERT INTO employees SET ?", result
+        )
+    })
 
-
-    
-   const insert = `INSERT INTO employees SET`; 
-
-    db.promise().query(insert)
         .then(([rows])=>{
              console.table(rows)
-                 }).then(()=> firstQuestion());
+                 })
+                 .catch(console.table)
+                 .then(()=> firstQuestion());
 
 })})};
 
 
 // roles section
 const updateEmployeeRole = () =>{
+    const sql = `SELECT employees.id, employees.first_name, employees.last_name FROM employees`;
+    const sql2 = `SELECT roles.id, roles.title FROM roles`;
+    db.promise().query(sql)
+    .then(([rows]) => {
+        // // saves off the manager information into an array
+        const employeeArr = rows.map(row => ({ name: row.first_name + " " + row.last_name, value: row.id }))
+        db.promise().query(sql2)
+        .then(([rows]) => {
+            // saves off the role information into an array
+            const roleArr = rows.map(row => ({ name: row.title, value: row.id }));
+
     inquirer.prompt([
-        {
-            type: 'list',
-            message:'which employee would you like to update?',
-            name: '',
-            choices:[
-                employees
-            ]
-        }
+        
+            {
+                type: 'list',
+                name: 'manager_id',
+                message: 'Pick the employee',
+                choices: [...employeeArr, { name: "NONE", value: null }]
+            },
+            {
+                type: 'list',
+                name: 'role_id',
+                message: 'Pick the role',
+                choices: [...roleArr, { name: "NONE", value: null }]
+            },
+        
     ])
 
-    const sql = `UPDATE`
+    .then(result => {
+        db.promise().query(
+            "UPDATE employee(role) SET", result
+        )
+    })
 
-    db.promise().query(sql)
-    .then(([rows])=>{
-         console.table(rows)
-             }).then(()=> firstQuestion());
+        .then(([rows])=>{
+             console.table(rows)
+                 })
+                 .catch(console.table)
+                 .then(()=> firstQuestion());
+                })})
 };
 
 const viewAllRoles = () =>{
@@ -163,14 +194,24 @@ const addRole = () =>{
             name:'title',
             
         },
+        {
+            type: 'input',
+            message:'what is the salary of the role',
+            name: 'salary'
+        }
         
     ])
-   const sql = `INSERT INTO roles(title) VALUES() SET;`; 
-
-    db.promise().query(sql)
-        .then(([rows])=>{
+   .then(result => {
+    db.promise().query(
+        "INSERT INTO roles SET", result
+    )
+})
+   
+    .then(([rows])=>{
              console.table(rows)
-                 }).then(()=> firstQuestion());
+                 })
+                 .catch(console.table)
+                 .then(()=> firstQuestion());
 
 };
 
@@ -196,12 +237,19 @@ const addDepartment = () =>{
         },
         
     ])
-   const sql = `INSERT INTO department(names) VALUES() SET`; 
+   
 
-    db.promise().query(sql)
-        .then(([rows])=>{
-             console.table(rows)
-                 }).then(()=> firstQuestion());
+   .then(result => {
+    db.promise().query(
+        "INSERT INTO department(names) SET", result
+    )
+})
+
+    .then(([rows])=>{
+         console.table(rows)
+             })
+             .catch(console.table)
+             .then(()=> firstQuestion());
 
 };
 

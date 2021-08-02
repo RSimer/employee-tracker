@@ -4,7 +4,7 @@ CREATE DATABASE project_db;
 USE project_db;
 
 -- department
-
+DROP TABLE IF EXISTS department;
 CREATE TABLE department (
     id INT AUTO_INCREMENT PRIMARY KEY,
     names VARCHAR(30) NOT NUll
@@ -12,7 +12,7 @@ CREATE TABLE department (
 
 
 -- role table
-
+DROP TABLE IF EXISTS roles;
 CREATE TABLE roles (
      id INT AUTO_INCREMENT PRIMARY KEY,
      title VARCHAR(30) NOT NUll,
@@ -24,6 +24,7 @@ CREATE TABLE roles (
 
 -- employees table
 
+DROP TABLE IF EXISTS employees;
 CREATE TABLE employees (
      id INT AUTO_INCREMENT PRIMARY KEY,
      first_name VARCHAR(30) NOT NUll,
