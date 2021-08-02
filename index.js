@@ -85,7 +85,7 @@ const addEmployees = () =>{
         },
        
     ])
-   const sql = `INSERT INTO employees(first_name,last_name) VALUES = (?)`; 
+   const sql = `INSERT INTO employees(first_name,last_name)`; 
 
     db.promise().query(sql)
         .then(([rows])=>{
