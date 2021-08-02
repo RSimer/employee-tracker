@@ -58,7 +58,10 @@ const mysql = require('mysql2/promise');
 
 const viewAllEmployees = () =>{
 
-    const sql = `SELECT employees.id,employees.first_name,employees.last_name,roles.title,department.names AS department,roles.salary,CONCAT(manager.first_name,manager.last_name) AS manager FROM employees LEFT JOIN roles on employees.role_id = roles.id LEFT JOIN department on roles.department_id = department.id LEFT JOIN employees manager on manager.id = employees.manager_id;`
+    const sql = `SELECT employees.id,employees.first_name,employees.last_name,roles.title,department.names AS department,
+     roles.salary,CONCAT(manager.first_name,manager.last_name) AS manager FROM employees
+     LEFT JOIN roles on employees.role_id = roles.id LEFT JOIN department on roles.department_id = department.id
+      LEFT JOIN employees manager on manager.id = employees.manager_id;`
 
     db.promise().query(sql)
         .then(([rows])=>{
@@ -77,11 +80,67 @@ const addEmployees = () =>{
         },
         {
             type:'input',
-            message:'What is the the employee`s last name',
+            message:'What is the employee`s last name',
             name:'last_name',
         },
+       
     ])
-    const sql = `INSERT INTO employees SET`;
+   const sql = `INSERT INTO employees(first_name,last_name) VALUES = (?)`; 
+
+    db.promise().query(sql)
+        .then(([rows])=>{
+             console.table(rows)
+                 }).then(()=> firstQuestion());
+
+};
+
+
+// roles section
+const updateEmployeeRole = () =>{
+
+
+
+
+    db.promise().query(sql)
+    .then(([rows])=>{
+         console.table(rows)
+             }).then(()=> firstQuestion());
+};
+
+const viewAllRoles = () =>{
+
+    const sql = `SELECT roles.id, roles.title, department.names AS department, roles.salary FROM roles JOIN department ON roles.department_id = department.id ORDER BY roles.id;`
+
+    db.promise().query(sql)
+        .then(([rows])=>{
+            console.table(rows)
+            }).then(()=> firstQuestion());
+    
+};
+
+// departments section
+const viewAllDepartments = () =>{
+
+    const sql = `SELECT id, names AS department FROM department ORDER BY id;;`
+    db.promise().query(sql)
+        .then(([rows])=>{
+            console.table(rows)
+            }).then(()=> firstQuestion());
+    
+};
+
+
+const addDepartment = () =>{
+    inquirer.prompt([
+        {
+            type:'input',
+            message:'What is the name of the department?',
+            name:'names',
+            
+        },
+        
+    ])
+   const sql = `INSERT INTO department(names)`; 
 
     db.promise().query(sql)
         .then(([rows])=>{
