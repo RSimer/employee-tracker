@@ -3,6 +3,7 @@ const inquirer = require("inquirer");
 const cTable = require('console.table');
 const mysql = require('mysql2');
 const util = require('util');
+const { listenerCount } = require('events');
 
 const query = util.promisify(db.query);
 
@@ -161,11 +162,15 @@ const updateEmployeeRole = () =>{
         
     ])
 
+
     .then(result => {
         db.promise().query(
-            "UPDATE employee(role) SET", result
+            "UPDATE employees SET ?", result
         )
+
     })
+
+    
 
         .then(([rows])=>{
              console.table(rows)
@@ -187,6 +192,12 @@ const viewAllRoles = () =>{
 };
 
 const addRole = () =>{
+    const sql = `SELECT department.id, department.names FROM department`;
+    db.promise().query(sql)
+        .then(([rows]) => {
+            // saves off the role information into an array
+            const deptArr = rows.map(department => ({ name: department.names, value: department.id }));
+
     inquirer.prompt([
         {
             type:'input',
@@ -198,12 +209,18 @@ const addRole = () =>{
             type: 'input',
             message:'what is the salary of the role',
             name: 'salary'
+        },
+        {
+            type:'list',
+            message:'what department are they in?',
+            name:'department_id',
+            choices: [...deptArr, { name: "NONE", value: null }]
         }
-        
+       
     ])
    .then(result => {
     db.promise().query(
-        "INSERT INTO roles SET", result
+        "INSERT INTO roles SET ?", result
     )
 })
    
@@ -212,6 +229,7 @@ const addRole = () =>{
                  })
                  .catch(console.table)
                  .then(()=> firstQuestion());
+                })
 
 };
 
@@ -241,7 +259,7 @@ const addDepartment = () =>{
 
    .then(result => {
     db.promise().query(
-        "INSERT INTO department(names) SET", result
+        "INSERT INTO department SET ?", result
     )
 })
 
